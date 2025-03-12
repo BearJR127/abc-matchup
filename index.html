@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ABC Match-Up</title>
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.js"></script>
+    <style>
+        body { margin: 0; padding: 0; text-align: center; background-color: #f4f4f4; }
+        canvas { display: block; margin: auto; }
+    </style>
+</head>
+<body>
+    <script>
+        const config = {
+            type: Phaser.AUTO,
+            width: 800,
+            height: 600,
+            scene: {
+                preload: preload,
+                create: create,
+                update: update
+            }
+        };
+
+        let game = new Phaser.Game(config);
+        let letters = ['A', 'B', 'C', 'D', 'E'];
+        let correctLetter;
+        let timerText, timeLeft = 5;
+        let timerEvent;
+
+        function preload() {
+            this.load.image('card', 'https://via.placeholder.com/150');
+        }
+
+        function create() {
+            this.add.text(300, 50, "Match the Letter!", { fontSize: '32px', fill: '#000' });
+
+            correctLetter = Phaser.Utils.Array.GetRandom(letters);
+            let letterDisplay = this.add.text(375, 120, correctLetter, { fontSize: '64px', fill: '#ff0000' });
+
+            let xPos = 200;
+            letters.forEach(letter => {
+                let card = this.add.image(xPos, 300, 'card').setInteractive();
+                let letterText = this.add.text(xPos - 10, 300, letter, { fontSize: '32px', fill: '#000' });
+                card.on('pointerdown', () => checkAnswer(letter, letterText));
+                xPos += 120;
+            });
+
+            timerText = this.add.text(350, 500, `Time Left: ${timeLeft}`, { fontSize: '32px', fill: '#000' });
+            timerEvent = this.time.addEvent({ delay: 1000, callback: updateTimer, callbackScope: this, loop: true });
+        }
+
+        function checkAnswer(selectedLetter, textObj) {
+            if (selectedLetter === correctLetter) {
+                textObj.setColor('#00ff00');
+                this.add.text(330, 400, "Correct!", { fontSize: '48px', fill: '#00ff00' });
+                timerEvent.remove();
+            } else {
+                textObj.setColor('#ff0000');
+            }
+        }
+
+        function updateTimer() {
+            timeLeft--;
+            timerText.setText(`Time Left: ${timeLeft}`);
+            if (timeLeft <= 0) {
+                this.add.text(330, 400, "Time's Up!", { fontSize: '48px', fill: '#ff0000' });
+                timerEvent.remove();
+            }
+        }
+    </script>
+</body>
+</html>
